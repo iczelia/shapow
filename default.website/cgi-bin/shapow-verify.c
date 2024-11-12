@@ -37,16 +37,12 @@ int main() {
   sqlite3 * db;
   if (sqlite3_open("../../shapow.db", &db) != SQLITE_OK)
     error("500 Internal Server Error", "Could not open the database.");
-  // Find the challenge:
   time_t timestamp = time(NULL);
   char * sql = "SELECT string, difficulty FROM challenges WHERE id = ? AND timestamp + duration > ? AND solved = 0";
   sqlite3_stmt * stmt;
-  if (sqlite3_prepare_v2(db, sql, -1, &stmt, NULL) != SQLITE_OK)
-    goto db_error;
-  if (sqlite3_bind_int(stmt, 1, id) != SQLITE_OK)
-    goto db_error;
-  if (sqlite3_bind_int64(stmt, 2, timestamp) != SQLITE_OK)
-    goto db_error;
+  if (sqlite3_prepare_v2(db, sql, -1, &stmt, NULL) != SQLITE_OK) goto db_error;
+  if (sqlite3_bind_int(stmt, 1, id) != SQLITE_OK) goto db_error;
+  if (sqlite3_bind_int64(stmt, 2, timestamp) != SQLITE_OK) goto db_error;
   int res = sqlite3_step(stmt);
   if (res != SQLITE_ROW) {
     sqlite3_finalize(stmt);

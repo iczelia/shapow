@@ -6,7 +6,6 @@
 #include <openssl/evp.h>
 #include <sqlite3.h>
 
-// Function to encode bytes to base64
 char * base64_encode(const unsigned char * input, int length) {
   EVP_ENCODE_CTX * ctx = EVP_ENCODE_CTX_new();
   int output_len = 4 * ((length + 2) / 3) + 1;
