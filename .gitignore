@@ -1,0 +1,12 @@
+
+althttpd
+
+default.website/cgi-bin/shapow-gen
+
+default.website/cgi-bin/shapow-is-verified
+
+default.website/cgi-bin/shapow-verify
+
+shapow-mkdb
+
+shapow.db

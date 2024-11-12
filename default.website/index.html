@@ -1,0 +1,49 @@
+<html>
+  <head>
+    <title>SHA-POW</title>
+    <style>
+      body {
+        max-width: 1200px;
+        margin: 0 auto;
+        margin-top: 50px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>SHA-POW</h1>
+    <p> SHA-POW is a simple SHA256-based proof of work system implemented in C as a collection of CGI scripts. It is intended to serve as a replacement for traditional (re)-CAPTCHAs in web forms. Due to the advent of sophistiated machine learning tools, traditional image-recognition based anti-botting systems are becoming less effective.
+
+		<p> SHA-POW takes a different approach: in order to verify yourself as a human, your computer must solve a cryptographic puzzle. If you have no malicious intent, the puzzles you solve will be easy and non-disruptive. However, a determined attacker will be forced to spend a significant amount of computational resources to bypass the system, slowing down the rate at which they can submit forms.
+
+		<p> You are welcome to either host your own instance of SHA-POW, based on the source code available <a href="https://github.com/kspalaiologos/sha-pow">on GitHub</a>, or use the public instance hosted on this server.
+
+		<h2>Hosting your own instance</h2>
+    <p> If you are willing to use althttpd and are partial to setting up a reverse proxy to the CGI scripts, the setup is as easy as:
+<pre>
+  git clone https://github.com/kspalaiologos/sha-pow && cd sha-pow
+  make && make host # Opens the server on port 8080
+</pre>
+    <p> You are encouraged to modify the Makefile script to change the port on which the server listens. You can also use a different web server, but you will have to configure it to run the CGI scripts.
+
+    <h2>Writing your own API wrapper</h2>
+    <p> The server exposes the following endpoints, <b>all of which are called by your backend</b>:
+    <ul>
+      <li> <code>/cgi-bin/shapow-gen?difficulty=...&nonce=...&duration=...</code>: Generate a new challenge for the client to solve, responses are in form <code>[id] SHAPOW:...</code>. The challenge has a timeout specified by the <code>duration</code> field (in seconds). <code>nonce</code> will be a part of the challenge text: make sure that it is related to your deployment (in some way) and identifies the user. <code>difficulty</code> specifies how difficult the challenge should be (anywhere between 1 - 32).</li>
+      <li> <code>/cgi-bin/shapow-verify?id=...&padding=...</code>: Verify the solution to the challenge specified by the ID. In other words, make sure that the SHA256 checksum of the challenge text (starting with <code>SHAPOW:</code> and ending with a colon) concatenated with the value of the <code>padding</code> field starts with as many <code>0xFF</code> bytes as specified by the difficulty. </li>
+      <li> <code>/cgi-bin/shapow-is-verified?id=...</code>: Check if the challenge has been solved. Returns <code>1</code> if the challenge has been solved, <code>0</code> otherwise.</li>
+    </ul>
+
+    <h2>JavaScript challenge solver</h2>
+    <p> Consider this example response from the <code>/cgi-bin/shapow-gen</code> endpoint:
+<pre>
+  1 SHAPOW:1731427899:+Z5/920imbTVCpQzAkblw7BOowNR9c5aqr8eW8AgK0k=:1:3600:test:
+</pre>
+    <p> The following Node.js session <a href="demo.js">using the JavaScript solver</a> provides a solution to this challenge:
+<pre>
+  > solve = require("./demo")
+  [Function: solve]
+  > solve("SHAPOW:1731427899:+Z5/920imbTVCpQzAkblw7BOowNR9c5aqr8eW8AgK0k=:1:3600:test:")
+  'hh'
+</pre>
+  </body>
+</html>
